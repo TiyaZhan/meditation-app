@@ -143,6 +143,42 @@ kubectl get pods
 kubectl port-forward service/meditation-app-service 3000:3000
 ```
 
+## Deploying to Railway
+
+The application can run on Railway as two services: this repository and a
+Railway MySQL database.
+
+1. Create a Railway project and deploy this GitHub repository.
+2. Add a MySQL database to the same Railway project.
+3. In the application service, add these reference variables from the MySQL
+   service:
+
+   ```env
+   NODE_ENV=production
+   SESSION_SECRET=generate-a-long-random-secret
+   DB_HOST=${{MySQL.MYSQLHOST}}
+   DB_PORT=${{MySQL.MYSQLPORT}}
+   DB_NAME=${{MySQL.MYSQLDATABASE}}
+   DB_USER=${{MySQL.MYSQLUSER}}
+   DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
+   GOOGLE_MAPS_API_KEY=your_api_key
+   UPLOAD_DIR=/usr/src/app/public/uploads
+   ```
+
+   If the database service has a different name, replace `MySQL` in the
+   reference expressions with that service name. Railway supplies `PORT`
+   automatically, so do not set it manually.
+
+4. Attach a volume to the application service at
+   `/usr/src/app/public/uploads`. Without it, uploaded images disappear after
+   a redeploy.
+5. Generate a public domain for the application service.
+6. Set the health-check path to `/health` and deploy.
+
+The Dockerfile installs production dependencies, builds the React bundle, and
+starts Express with `npm start`. The application creates its Sequelize tables
+and persistent session table on startup.
+
 ## Demo
 
 I recorded a short demo video explaining the project and showing how the app works:

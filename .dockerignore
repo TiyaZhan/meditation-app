@@ -1,9 +1,9 @@
-# Exclude everything
-*
-
-# Include necessary files and directories
-!src/
-!package*.json
-!public/
-!.env 
-!views/
+node_modules
+.git
+.github
+.env
+.env.*
+coverage
+*.log
+public/uploads
+k8s

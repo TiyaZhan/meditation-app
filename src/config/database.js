@@ -1,22 +1,19 @@
 const { Sequelize } = require('sequelize');
 
-const dbName = process.env.DB_NAME || 'med-app-dev';
+const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'med-app-dev';
 const dbTestName = process.env.DB_TEST_NAME || 'med-app-test';
-const dbUser = process.env.DB_USER || 'root';
-const dbPassword = process.env.DB_PASSWORD || '';
-const dbPort = Number(process.env.DB_PORT || 3306);
+const dbUser = process.env.DB_USER || process.env.MYSQLUSER || 'root';
+const dbPassword = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '';
+const dbPort = Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306);
 
 const getDbHost = () => {
-    console.log('Build timestamp: ' + new Date().toISOString());
-    const host = process.env.NODE_ENV === 'kubernetes' ? 'mysql-service' : 
-                 process.env.NODE_ENV === 'development' ? (process.env.DB_HOST || 'db') : 
-                 'localhost';
-    console.log('\n=== Database Connection Configuration ===');
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('DB_HOST:', process.env.DB_HOST);
-    console.log('Resolved Host:', host);
-    console.log('=====================================\n');
-    return host;
+    if (process.env.DB_HOST || process.env.MYSQLHOST) {
+        return process.env.DB_HOST || process.env.MYSQLHOST;
+    }
+
+    if (process.env.NODE_ENV === 'kubernetes') return 'mysql-service';
+    if (process.env.NODE_ENV === 'development') return 'db';
+    return 'localhost';
 };
 
 const getDbConfig = () => {
@@ -50,11 +47,10 @@ const getDbConfig = () => {
         database: dbName,
         username: dbUser,
         password: dbPassword,
-        logging: (msg) => console.log('Sequelize Log:', msg),
+        logging: process.env.NODE_ENV === 'development' ? console.log : false,
         dialectOptions: {
             connectTimeout: 60000,
             socketPath: undefined,
-            debug: true,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci'
         },
@@ -102,8 +98,5 @@ const connectWithRetry = async (retries = 5) => {
     }
 };
 
-if (process.env.NODE_ENV !== 'test') {
-    connectWithRetry();
-}
-
 module.exports = sequelize;
+module.exports.connectWithRetry = connectWithRetry;
