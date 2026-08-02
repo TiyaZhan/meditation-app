@@ -21,20 +21,27 @@ const PostContent = () => {
     }, []);
 
     useEffect(() => {
-        if (post?.latitude && post?.longitude && !mapRef.current) {
+        const renderMap = () => {
+          if (post?.latitude != null && post?.longitude != null && !mapRef.current) {
             initMap();
-        }
+          }
+        };
+
+        renderMap();
+        window.addEventListener('google-maps-ready', renderMap);
+
+        return () => window.removeEventListener('google-maps-ready', renderMap);
     }, [post]);
 
     const initMap = () => {
-        if (!window.google || mapRef.current) return;
+        if (!window.google?.maps || mapRef.current) return;
         
-        const map = new google.maps.Map(document.getElementById('map'), {
+        const map = new window.google.maps.Map(document.getElementById('map'), {
             center: { lat: parseFloat(post.latitude), lng: parseFloat(post.longitude) },
             zoom: 15
         });
         
-        new google.maps.Marker({
+        new window.google.maps.Marker({
             position: { lat: parseFloat(post.latitude), lng: parseFloat(post.longitude) },
             map: map
         });
@@ -225,4 +232,4 @@ const PostContent = () => {
     );
 };
 
-export default PostContent; 
+export default PostContent;

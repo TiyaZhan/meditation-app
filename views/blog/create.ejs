@@ -7,7 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://maps.googleapis.com">
     <link rel="preconnect" href="https://maps.gstatic.com">
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>"></script>
+    <% if (googleMapsApiKey) { %>
+      <script async defer
+              src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>"
+              onload="window.dispatchEvent(new Event('google-maps-ready'))"></script>
+    <% } %>
 </head>
 <body>
     <script id="user-data" type="application/json">

@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= post.title %> - Med World</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>"></script>
+    <% if (googleMapsApiKey) { %>
+      <script async defer
+              src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>"
+              onload="window.dispatchEvent(new Event('google-maps-ready'))"></script>
+    <% } %>
 </head>
 <body>
     <script id="user-data" type="application/json">

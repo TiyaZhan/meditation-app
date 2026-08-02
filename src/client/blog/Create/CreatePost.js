@@ -36,10 +36,17 @@ const CreatePost = () => {
   }));
 
   const [location, setLocation] = useState(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState('');
   const [images, setImages] = useState([]);
 
   useEffect(() => {
-    if (location) {
+    const renderMap = () => {
+      if (!location || !window.google?.maps) return;
+
+      const mapElement = document.getElementById('map');
+      if (!mapElement) return;
+
       const map = new window.google.maps.Map(document.getElementById('map'), {
         center: { lat: location.lat, lng: location.lng },
         zoom: 15
@@ -49,8 +56,48 @@ const CreatePost = () => {
         position: { lat: location.lat, lng: location.lng },
         map: map
       });
-    }
+    };
+
+    renderMap();
+    window.addEventListener('google-maps-ready', renderMap);
+
+    return () => window.removeEventListener('google-maps-ready', renderMap);
   }, [location]);
+
+  const handleAddLocation = () => {
+    setLocationError('');
+
+    if (!navigator.geolocation) {
+      setLocationError('Location is not supported by this browser.');
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        });
+        setIsLocating(false);
+      },
+      (error) => {
+        const messages = {
+          1: 'Location permission was denied. Enable it in your browser settings and try again.',
+          2: 'Your location is currently unavailable. Check your device location settings.',
+          3: 'Finding your location took too long. Please try again.'
+        };
+        setLocationError(messages[error.code] || 'Unable to determine your location.');
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000
+      }
+    );
+  };
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -125,21 +172,19 @@ const CreatePost = () => {
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
-              onClick={() => {
-                if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition((position) => {
-                    setLocation({
-                      lat: position.coords.latitude,
-                      lng: position.coords.longitude
-                    });
-                  });
-                }
-              }}
+              onClick={handleAddLocation}
+              disabled={isLocating}
               className="p-2 rounded hover:bg-gray-100"
             >
-              📍 Add Location
+              {isLocating ? '📍 Finding Location…' : '📍 Add Location'}
             </motion.button>
           </div>
+
+          {locationError && (
+            <p className="mb-4 text-sm text-red-600" role="alert">
+              {locationError}
+            </p>
+          )}
 
           {/* Editor */}
           <EditorContent editor={editor} />
@@ -179,9 +224,18 @@ const CreatePost = () => {
               className="mt-6 p-4 bg-gray-50 rounded-lg"
             >
               <div className="flex justify-between items-center">
-                <span>📍 Location added</span>
+                <div>
+                  <div>📍 Location added</div>
+                  <div className="text-sm text-gray-500">
+                    {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+                    {location.accuracy && ` · accurate to about ${Math.round(location.accuracy)} m`}
+                  </div>
+                </div>
                 <button
-                  onClick={() => setLocation(null)}
+                  onClick={() => {
+                    setLocation(null);
+                    setLocationError('');
+                  }}
                   className="text-red-500 hover:text-red-600"
                 >
                   Remove
@@ -217,4 +271,4 @@ const CreatePost = () => {
   );
 };
 
-export default CreatePost; 
+export default CreatePost;
