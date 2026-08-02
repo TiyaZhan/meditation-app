@@ -38,13 +38,17 @@ const PostContent = () => {
         
         const map = new window.google.maps.Map(document.getElementById('map'), {
             center: { lat: parseFloat(post.latitude), lng: parseFloat(post.longitude) },
-            zoom: 15
+            zoom: 15,
+            mapId: window.googleMapsMapId || 'DEMO_MAP_ID'
         });
         
-        new window.google.maps.Marker({
-            position: { lat: parseFloat(post.latitude), lng: parseFloat(post.longitude) },
-            map: map
-        });
+        if (window.google.maps.marker?.AdvancedMarkerElement) {
+            new window.google.maps.marker.AdvancedMarkerElement({
+                position: { lat: parseFloat(post.latitude), lng: parseFloat(post.longitude) },
+                map: map,
+                title: 'Meditation location'
+            });
+        }
         
         mapRef.current = map;
     };

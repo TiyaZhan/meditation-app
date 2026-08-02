@@ -134,7 +134,8 @@ router.get("/", async (req, res) => {
         res.render('blog/post', { 
             post: postWithDetails,
             user: req.session.user,
-            googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+            googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+            googleMapsMapId: process.env.GOOGLE_MAPS_MAP_ID
         });
 
     } catch (err) {
@@ -159,7 +160,8 @@ router.get("/new", async (req, res) => {
 
     res.render('../views/blog/create', {
         user: req.session.user,
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+        googleMapsMapId: process.env.GOOGLE_MAPS_MAP_ID
     });
 });
 //explore page
@@ -219,7 +221,8 @@ router.get("/:id", async (req, res) => {
         res.render('blog/post', { 
             post: post,
             user: req.session.user || null,
-            googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY  
+            googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+            googleMapsMapId: process.env.GOOGLE_MAPS_MAP_ID
         });
     } catch (err) {
         console.error("Failed to retrieve post:", err);

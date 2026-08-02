@@ -49,13 +49,17 @@ const CreatePost = () => {
 
       const map = new window.google.maps.Map(document.getElementById('map'), {
         center: { lat: location.lat, lng: location.lng },
-        zoom: 15
+        zoom: 15,
+        mapId: window.googleMapsMapId || 'DEMO_MAP_ID'
       });
       
-      new window.google.maps.Marker({
-        position: { lat: location.lat, lng: location.lng },
-        map: map
-      });
+      if (window.google.maps.marker?.AdvancedMarkerElement) {
+        new window.google.maps.marker.AdvancedMarkerElement({
+          position: { lat: location.lat, lng: location.lng },
+          map: map,
+          title: 'Meditation location'
+        });
+      }
     };
 
     renderMap();

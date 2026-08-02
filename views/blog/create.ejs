@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Entry</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/dist/styles.css">
     <link rel="preconnect" href="https://maps.googleapis.com">
     <link rel="preconnect" href="https://maps.gstatic.com">
     <% if (googleMapsApiKey) { %>
-      <script async defer
-              src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>"
-              onload="window.dispatchEvent(new Event('google-maps-ready'))"></script>
+      <script>
+        window.googleMapsMapId = <%- JSON.stringify(googleMapsMapId || 'DEMO_MAP_ID') %>;
+        window.initGoogleMaps = () => window.dispatchEvent(new Event('google-maps-ready'));
+      </script>
+      <script async
+              src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&loading=async&v=weekly&libraries=marker&callback=initGoogleMaps"></script>
     <% } %>
 </head>
 <body>
