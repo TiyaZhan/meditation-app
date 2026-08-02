@@ -4,6 +4,8 @@ The app lets people create meditation posts with written reflections, images, an
 
 Repository: [TiyaZhan/meditation-app](https://github.com/TiyaZhan/meditation-app.git)
 
+Live website: [meditation-app-production-2840.up.railway.app](https://meditation-app-production-2840.up.railway.app)
+
 ## What I Built
 
 - User registration and login with session-based authentication
@@ -26,7 +28,8 @@ Repository: [TiyaZhan/meditation-app](https://github.com/TiyaZhan/meditation-app
 - **Uploads:** Multer
 - **Testing:** Jest, Supertest, SQLite for test runs
 - **Build tools:** Webpack, Babel
-- **Deployment:** Docker, Docker Compose, Kubernetes
+- **Deployment:** Railway with Docker
+- **Infrastructure examples:** Docker Compose and Kubernetes manifests
 
 ## Project Structure
 
@@ -43,7 +46,7 @@ meditation-app/
 │   └── app.js               # Express app entry point
 ├── views/                   # EJS page shell
 ├── public/uploads/          # Uploaded images
-├── k8s/                     # Kubernetes manifests
+├── k8s/                     # Legacy Kubernetes deployment examples
 ├── Dockerfile
 ├── docker-compose.yml
 ├── webpack.config.js
@@ -51,6 +54,8 @@ meditation-app/
 ```
 
 ## Getting Started
+
+Local development requires Node.js 20 and MySQL 8.
 
 Clone the repository:
 
@@ -63,6 +68,12 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+Start MySQL and create the local database if it does not already exist:
+
+```sql
+CREATE DATABASE `med-app-dev`;
 ```
 
 Create a `.env` file for local development:
@@ -78,19 +89,21 @@ NODE_ENV=development
 GOOGLE_MAPS_API_KEY=your_api_key
 ```
 
+Build the frontend bundle:
+
+```bash
+npm run build
+```
+
 Start the development server:
 
 ```bash
 npm run devStart
 ```
 
-In a separate terminal, build or watch the frontend bundle:
-
-```bash
-npm run build
-```
-
-or:
+The application will be available at `http://localhost:3000`. To rebuild the
+frontend automatically while editing client code, run this in a separate
+terminal:
 
 ```bash
 npm run watch
@@ -115,75 +128,6 @@ Run integration tests only:
 ```bash
 npm run test:integration
 ```
-
-## Deployment Notes
-
-I included Docker and Kubernetes files so the app can be containerized and deployed in a more production-like environment.
-
-Build the Docker image:
-
-```bash
-docker build -t meditation-app:latest .
-```
-
-Apply the Kubernetes manifests:
-
-```bash
-kubectl apply -f k8s/persistent-volumes.yaml
-kubectl apply -f k8s/mysql-deployment.yaml
-kubectl apply -f k8s/mysql-service.yaml
-kubectl apply -f k8s/app-development.yaml
-kubectl apply -f k8s/app-service.yaml
-```
-
-Check the deployment:
-
-```bash
-kubectl get pods
-kubectl port-forward service/meditation-app-service 3000:3000
-```
-
-## Deploying to Railway
-
-The application can run on Railway as two services: this repository and a
-Railway MySQL database.
-
-1. Create a Railway project and deploy this GitHub repository.
-2. Add a MySQL database to the same Railway project.
-3. In the application service, add these reference variables from the MySQL
-   service:
-
-   ```env
-   NODE_ENV=production
-   SESSION_SECRET=generate-a-long-random-secret
-   DB_HOST=${{MySQL.MYSQLHOST}}
-   DB_PORT=${{MySQL.MYSQLPORT}}
-   DB_NAME=${{MySQL.MYSQLDATABASE}}
-   DB_USER=${{MySQL.MYSQLUSER}}
-   DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
-   GOOGLE_MAPS_API_KEY=your_api_key
-   UPLOAD_DIR=/usr/src/app/public/uploads
-   ```
-
-   If the database service has a different name, replace `MySQL` in the
-   reference expressions with that service name. Railway supplies `PORT`
-   automatically, so do not set it manually.
-
-4. Attach a volume to the application service at
-   `/usr/src/app/public/uploads`. Without it, uploaded images disappear after
-   a redeploy.
-5. Generate a public domain for the application service.
-6. Set the health-check path to `/health` and deploy.
-
-The Dockerfile installs production dependencies, builds the React bundle, and
-starts Express with `npm start`. The application creates its Sequelize tables
-and persistent session table on startup.
-
-## Demo
-
-I recorded a short demo video explaining the project and showing how the app works:
-
-https://youtu.be/882FFAY7NNE
 
 ## Author
 

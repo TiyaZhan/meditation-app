@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { Sequelize } = require('sequelize');
 
 const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'med-app-dev';
@@ -51,8 +53,7 @@ const getDbConfig = () => {
         dialectOptions: {
             connectTimeout: 60000,
             socketPath: undefined,
-            charset: 'utf8mb4',
-            collate: 'utf8mb4_unicode_ci'
+            charset: 'utf8mb4'
         },
         pool: {
             max: 5,

@@ -21,7 +21,7 @@ const RegisterForm = () => {
       const data = await response.json();
       
       if (response.ok) {
-        window.location.href = '/users/login';
+        window.location.href = '/blog';
       } else {
         if (data.message.includes('Email')) {
           alert('This email is already registered. Please use a different email or try logging in.');
@@ -97,4 +97,4 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm; 
+export default RegisterForm;
